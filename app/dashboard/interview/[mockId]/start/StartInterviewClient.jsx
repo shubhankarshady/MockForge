@@ -2,20 +2,18 @@
 
 import { useEffect, useState } from "react";
 import QuestionsSection from "./components/QuestionSection";
+import RecordAnsSection from "./components/RecordAnsSection";
 
-
-export default function StartInterviewClient({ interview }) {
-
+export default function StartInterviewClient({ interview, user }) {
   const [mockInterviewQuestions, setMockInterviewQuestions] = useState([]);
   const [interviewData, setInterviewData] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0); // ✅ track active question
 
   useEffect(() => {
     startInterviewData(interview);
   }, [interview]);
 
   const startInterviewData = (data) => {
-    console.log("Interview loaded:", data);
-
     try {
       const jsonMockResp = JSON.parse(data.jsonMockResp);
       setMockInterviewQuestions(jsonMockResp.questions || []);
@@ -25,25 +23,30 @@ export default function StartInterviewClient({ interview }) {
     }
   };
 
+  const activeQuestion = mockInterviewQuestions[activeIndex]; // ✅ current question
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+      {/* LEFT */}
+      <QuestionsSection
+        questions={mockInterviewQuestions}
+        activeIndex={activeIndex}
+        setActiveIndex={setActiveIndex}
+      />
 
-      {/* LEFT: Questions */}
-      <QuestionsSection questions={mockInterviewQuestions} />
-
-      {/* RIGHT: Recording / Info */}
+      {/* RIGHT */}
       <div className="border rounded-lg p-5">
         <h1 className="text-xl font-bold mb-2">Interview Started</h1>
         <p className="mb-4">
           <strong>Position:</strong> {interviewData?.jobPosition}
         </p>
 
-        {/* Audio / Video recording UI goes here later */}
-        <div className="text-sm text-muted-foreground">
-          Recording section coming next…
-        </div>
+        <RecordAnsSection
+          mockId={interviewData?.mockId}
+          activeQuestion={activeQuestion}
+          user={user}
+        />
       </div>
-
     </div>
   );
 }

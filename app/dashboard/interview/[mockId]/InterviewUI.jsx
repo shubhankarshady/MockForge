@@ -1,28 +1,13 @@
 "use client";
 
-import { useState, useRef } from "react";
-import Webcam from "react-webcam";
-import { Camera, Lightbulb, StopCircle, PlayCircle } from "lucide-react";
+import { Lightbulb, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
-
 export default function InterviewUI({ interview }) {
-  const [webCamEnabled, setWebCamEnabled] = useState(false);
-  const webcamRef = useRef(null);
   const params = useParams();
   const mockId = params.mockId;
-
-  const stopWebcam = () => {
-    const stream = webcamRef.current?.stream;
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-    }
-    setWebCamEnabled(false);
-  };
-
-  
 
   return (
     <div className="my-10 px-6">
@@ -32,7 +17,6 @@ export default function InterviewUI({ interview }) {
 
         {/* LEFT SIDE – Job Info */}
         <div className="flex flex-col gap-4 p-6 rounded-lg border">
-
           <h2 className="text-lg">
             <strong>Job Role/Position:</strong> {interview.jobPosition}
           </h2>
@@ -52,64 +36,21 @@ export default function InterviewUI({ interview }) {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Enable video webcam and microphone to start the interview.
-              It has 5 questions which you can answer and at the end you will get
-              a report based on your answers.
-            </p>
-
-            <p className="text-sm text-muted-foreground mt-2 font-semibold">
-              NOTE: We never record your video.
+              This interview contains 5 questions. Answer them honestly to receive
+              a performance report at the end.
             </p>
           </div>
-
         </div>
 
-        {/* RIGHT SIDE – Webcam */}
-        <div className="flex flex-col items-center gap-4">
+        {/* RIGHT SIDE – Start Interview */}
+        <div className="flex flex-col items-center justify-center gap-4 border rounded-lg p-10">
 
-          {!webCamEnabled ? (
-            <div
-              onClick={() => setWebCamEnabled(true)}
-              className="h-72 w-72 flex flex-col items-center justify-center bg-secondary rounded-lg border cursor-pointer hover:bg-gray-200 transition"
-            >
-              <Camera size={48} />
-              <p className="mt-2 font-medium">Enable Webcam & Mic</p>
-            </div>
-          ) : (
-            <>
-              <Webcam
-                ref={webcamRef}
-                className="h-72 w-72 rounded-lg border"
-                audio={true}
-                 muted={true} 
-                mirrored={true}
-              />
-
-              <div className="flex flex-col gap-3 w-full items-center">
-                <Link href={`/dashboard/interview/${mockId}/start`} >
-                  <Button
-                  variant="default"
-                  className="flex gap-2 items-center w-60"
-                  disabled={!webCamEnabled}
-                  
-                >
-                  <PlayCircle size={18} />
-                  Start Interview
-                </Button>
-                </Link>
-                
-                <Button
-                  variant="destructive"
-                  onClick={stopWebcam}
-                  className="flex gap-2 items-center w-60"
-                >
-                  <StopCircle size={18} />
-                  Stop Webcam & Mic
-                </Button>
-
-              </div>
-            </>
-          )}
+          <Link href={`/dashboard/interview/${mockId}/start`}>
+            <Button className="flex gap-2 items-center w-60">
+              <PlayCircle size={18} />
+              Start Interview
+            </Button>
+          </Link>
 
         </div>
       </div>
