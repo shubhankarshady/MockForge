@@ -62,25 +62,28 @@ export default function SpeechRecorder({ mockId, activeQuestion, user }) {
         });
         return;
       }
-
       try {
-        console.log("Sending to Gemini...");
+  console.log("Sending to Gemini...");
 
-        const result = await sendForEvaluation({
-  mockId: mockId,                    // must exist
-  question: activeQuestion.question,
-  correctAns: activeQuestion.answer,
-  userAnswer: text,
-  userEmail: user?.email || "anonymous",
+  const result = await sendForEvaluation({
+    mockId: mockId,
+    question: activeQuestion.question,
+    correctAns: activeQuestion.answer,
+    userAnswer: text,
+    userEmail: user?.email || "anonymous",
+  });
 
-});
+  console.log("Gemini Result:", result);
+  console.log("Rating:", result.rating);
+  console.log("Feedback:", result.feedback);
 
+  toast.success("Answer recorded successfully", {
+    description: "Your response has been evaluated and saved.",
+  });
 
-        console.log("Gemini Result:", result);
-        console.log("Rating:", result.rating);
-        console.log("Feedback:", result.feedback);
+}
 
-      } catch (err) {
+       catch (err) {
         console.error("Gemini error:", err);
         toast.error("Failed to evaluate answer");
       }
