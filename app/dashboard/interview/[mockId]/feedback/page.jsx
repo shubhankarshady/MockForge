@@ -2,6 +2,8 @@ import { db } from "@/utils/db";
 import { UserAnswer } from "@/utils/schema";
 import { eq } from "drizzle-orm";
 import { ChevronsUpDown } from "lucide-react"
+import Link from "next/link";
+
 
 import {
   Collapsible,
@@ -48,6 +50,13 @@ export default async function Feedback({ params }) {
           </div>
         ))}
       </div>
+
+      <Link href="/dashboard">
+  <button className="fixed bottom-10 left-6 bg-primary text-white px-5 py-2 rounded-lg shadow-lg hover:opacity-90 transition">
+    ← Go Home
+  </button>
+</Link>
+
       
     </div>
   );
