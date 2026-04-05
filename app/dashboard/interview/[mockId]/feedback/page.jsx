@@ -1,5 +1,5 @@
-import { db } from "@/utils/db";
-import { UserAnswer } from "@/utils/schema";
+import { db } from "@/lib/db/index";
+import { UserAnswer } from "@/lib/db/schema/index";
 import { eq } from "drizzle-orm";
 import { ChevronsUpDown } from "lucide-react"
 import Link from "next/link";

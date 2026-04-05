@@ -1,10 +1,9 @@
 "use client";
 
 
-import SplitText from "@/components/SplitText";
-
-import Navbar from "./dashboard/_components/Navbar";
-import SplashCursor from "@/components/SplashCursor";
+import SplitText from "@/components/animations/SplitText";
+import Navbar from "@/components/shared/Navbar";
+import SplashCursor from "@/components/animations/SplashCursor";
 
 
 export default function Home() {

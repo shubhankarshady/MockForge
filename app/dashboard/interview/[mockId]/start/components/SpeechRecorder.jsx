@@ -6,6 +6,8 @@ import { Mic, Square } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
 
+import { saveUserAnswer } from "@/lib/actions/answer";
+
 export default function SpeechRecorder({ mockId, activeQuestion, user }) {
   const {
     error,
@@ -34,24 +36,11 @@ export default function SpeechRecorder({ mockId, activeQuestion, user }) {
     startSpeechToText();
   };
 
-  // 👇 Gemini API call helper
-  const sendForEvaluation = async (data) => {
-  const res = await fetch("/api/evaluate-answer", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  return res.json();
-};
-
-
-  const handleStop = () => {
+  const handleStop = async () => {
     stopSpeechToText();
 
     setTimeout(async () => {
       const text = transcriptRef.current.trim();
-
       console.log("Final Answer:", text);
 
       const wordCount = text.split(/\s+/).filter(Boolean).length;
@@ -62,32 +51,30 @@ export default function SpeechRecorder({ mockId, activeQuestion, user }) {
         });
         return;
       }
+
       try {
-  console.log("Sending to Gemini...");
+        console.log("Sending for evaluation...");
 
-  const result = await sendForEvaluation({
-    mockId: mockId,
-    question: activeQuestion.question,
-    correctAns: activeQuestion.answer,
-    userAnswer: text,
-    userEmail: user?.email || "anonymous",
-  });
+        const result = await saveUserAnswer({
+          mockId: mockId,
+          question: activeQuestion.question,
+          correctAns: activeQuestion.answer,
+          userAns: text,
+          userEmail: user?.primaryEmailAddress?.emailAddress || "anonymous",
+        });
 
-  console.log("Gemini Result:", result);
-  console.log("Rating:", result.rating);
-  console.log("Feedback:", result.feedback);
-
-  toast.success("Answer recorded successfully", {
-    description: "Your response has been evaluated and saved.",
-  });
-
-}
-
-       catch (err) {
-        console.error("Gemini error:", err);
+        if (result.success) {
+          console.log("Evaluation Result:", result.evaluation);
+          toast.success("Answer recorded successfully", {
+            description: "Your response has been evaluated and saved.",
+          });
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (err) {
+        console.error("Evaluation error:", err);
         toast.error("Failed to evaluate answer");
       }
-
     }, 300);
   };
 

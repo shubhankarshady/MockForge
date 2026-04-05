@@ -1,5 +1,5 @@
 "use client"
-import StaggeredMenu from "@/components/StaggeredMenu";
+import StaggeredMenu from "@/components/animations/StaggeredMenu";
 import React from "react";
 
 const menuItems = [

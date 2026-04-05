@@ -14,7 +14,9 @@ import { LoaderCircle } from "lucide-react";
 import React, { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import SpotlightWrapper from "@/components/SpotlightWrapper";
+import SpotlightWrapper from "@/components/animations/SpotlightWrapper";
+
+import { createMockInterview } from "@/lib/actions/interview";
 
 function AddNewInterview() {
   const { user } = useUser();
@@ -24,7 +26,6 @@ function AddNewInterview() {
   const [jobDesc, setJobDesc] = useState("");
   const [jobExperiance, setJobExperiance] = useState("");
   const [loading, setLoading] = useState(false);
-  const [jsonResponse, setJsonResponse] = useState([]);
 
   const router = useRouter();
 
@@ -32,31 +33,21 @@ function AddNewInterview() {
     e.preventDefault();
     setLoading(true);
 
+    const formData = new FormData();
+    formData.append("jobPosition", jobPosition);
+    formData.append("jobDesc", jobDesc);
+    formData.append("jobExperience", jobExperiance);
+    formData.append("createdBy", user?.primaryEmailAddress?.emailAddress);
+
     try {
-      const res = await fetch("/api/gemini", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jobPosition,
-          jobDesc,
-          jobExperiance,
-          createdBy: user?.primaryEmailAddress?.emailAddress,
-        }),
-      });
+      const result = await createMockInterview(formData);
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text);
+      if (result.success) {
+        router.push(`/dashboard/interview/${result.mockId}`);
+        setOpenDialog(false);
+      } else {
+        throw new Error(result.error);
       }
-
-      const data = await res.json();
-
-      router.push(`/dashboard/interview/${data.mockId}/page.jsx`);
-      console.log("Saved mockId:", data.mockId);
-      console.log("Questions:", data.questions);
-
-      setJsonResponse(data.questions);
-      setOpenDialog(false);
     } catch (err) {
       console.error("Failed to create interview:", err);
       alert("Failed to generate interview. Check console.");

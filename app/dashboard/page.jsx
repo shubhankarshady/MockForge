@@ -1,8 +1,8 @@
 import React from 'react'
-import AddNewInterview from './_components/AddNewInterview'
-import InterviewList from './_components/InterviewList'
+import AddNewInterview from '@/components/shared/AddNewInterview'
+import InterviewList from '@/components/shared/InterviewList'
 
-import DashboardHero from '@/components/DashBoardHero'
+import DashboardHero from '@/components/shared/DashboardHero'
 
 function Dashboard() {
   return (

@@ -1,5 +1,5 @@
 import { SignIn } from "@clerk/nextjs";
-import SplashCursor from "@/components/SplashCursor";
+import SplashCursor from "@/components/animations/SplashCursor";
 
 export default function Page() {
   return (

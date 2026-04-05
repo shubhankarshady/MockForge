@@ -1,7 +1,7 @@
 "use client";
 
-import SplitText from "@/components/SplitText";
-import GradientText from "@/components/GradientText";
+import SplitText from "@/components/animations/SplitText";
+import GradientText from "@/components/animations/GradientText";
 
 export default function DashboardHero() {
 

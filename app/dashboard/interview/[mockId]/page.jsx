@@ -1,5 +1,5 @@
-import { db } from "@/utils/db";
-import { MockInterview } from "@/utils/schema";
+import { db } from "@/lib/db/index";
+import { MockInterview } from "@/lib/db/schema/index";
 import { eq } from "drizzle-orm";
 import InterviewUI from "./InterviewUI";
 

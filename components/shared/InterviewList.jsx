@@ -1,10 +1,10 @@
-import { db } from "@/utils/db";
-import { MockInterview } from "@/utils/schema";
+import { db } from "@/lib/db/index";
+import { MockInterview } from "@/lib/db/schema/index";
 import { desc, eq } from "drizzle-orm";
 import { currentUser } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import SpotlightWrapper from "@/components/SpotlightWrapper";
+import SpotlightWrapper from "@/components/animations/SpotlightWrapper";
 
 export default async function InterviewList() {
   const user = await currentUser();
