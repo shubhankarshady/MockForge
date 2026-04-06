@@ -26,7 +26,7 @@ export default function DashboardHero() {
       />
         <div className="mt-2">
             <GradientText
-        colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
+        colors={["#ffffffff", "#ffffffff", "#ffffffff"]}
         animationSpeed={8}
         showBorder={false}
         className="block !mx-0 !justify-start"

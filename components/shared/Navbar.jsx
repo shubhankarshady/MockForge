@@ -3,7 +3,7 @@ import StaggeredMenu from "@/components/animations/StaggeredMenu";
 import React from "react";
 
 const menuItems = [
-  { label: "Home", ariaLabel: "Go to home page", link: "/" },
+  { label: "Home", ariaLabel: "Go to home page", link: "/"  },
   { label: "Sign-in", ariaLabel: "Learn about us", link: "/sign-in" },
   { label: "Services", ariaLabel: "View our services", link: "/services" },
   { label: "Contact", ariaLabel: "Get in touch", link: "/contact" },
@@ -27,9 +27,9 @@ function Navbar() {
         menuButtonColor="#ffffff"
         openMenuButtonColor="#fff"
         changeMenuColorOnOpen={true}
-        colors={["#B19EEF", "#5227FF"]}
+        colors={["#0a0a0a", "#111111"]}
         logoUrl="/path-to-your-logo.svg"
-        accentColor="#5227FF"
+        accentColor="#ffffff"
         onMenuOpen={() => console.log("Menu opened")}
         onMenuClose={() => console.log("Menu closed")}
       />

@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.7",
-    "@google/genai": "^1.35.0",
+    "@google/generative-ai": "^0.24.1",
     "@gsap/react": "^2.1.2",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-collapsible": "^1.1.12",

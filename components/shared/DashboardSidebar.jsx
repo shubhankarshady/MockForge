@@ -10,6 +10,7 @@ import {
 } from "@tabler/icons-react";
 
 import { UserButton, useUser } from "@clerk/nextjs";
+import AmbientBackground from "./AmbientBackground";
 
 export default function DashboardSidebar({ children }) {
   const [open, setOpen] = useState(true);
@@ -39,18 +40,18 @@ export default function DashboardSidebar({ children }) {
   ];
 
   return (
-    <div className="flex h-screen w-full bg-black">
+    <div className="flex h-screen w-full bg-[#050505]">
       {/* ================= SIDEBAR ================= */}
       <Sidebar
         open={open}
         setOpen={setOpen}
-        className="bg-neutral-950 border-r border-neutral-800"
+        className="bg-[#0a0a0a] border-r border-white/5"
       >
         <SidebarBody
           className="
             justify-between
             gap-10
-            bg-neutral-950
+            bg-[#0a0a0a]
             text-neutral-200
           "
         >
@@ -63,7 +64,7 @@ export default function DashboardSidebar({ children }) {
                 className="
                      !text-neutral-200
                    hover:!text-white
-                     hover:bg-neutral-800
+                     hover:bg-white/5
                       rounded-lg
                     transition-all duration-200
   "
@@ -74,12 +75,12 @@ export default function DashboardSidebar({ children }) {
           {/* ---------- USER PROFILE ---------- */}
           <div
             className="
-              border-t border-neutral-800
+              border-t border-white/5
               pt-4
               flex items-center gap-3
               p-2
               rounded-lg
-              hover:bg-neutral-900
+              hover:bg-white/5
               transition-all
             "
           >
@@ -88,13 +89,13 @@ export default function DashboardSidebar({ children }) {
               appearance={{
                 elements: {
                   avatarBox:
-                    "h-10 w-10 ring-1 ring-neutral-700 hover:ring-[#5227FF] transition-all",
+                    "h-10 w-10 ring-1 ring-neutral-700 hover:ring-white/50 transition-all",
 
                   userButtonPopoverCard:
-                    "bg-neutral-900 border border-neutral-800 shadow-xl",
+                    "bg-[#0a0a0a] border border-white/10 shadow-xl",
 
                   userButtonPopoverActionButton:
-                    "text-neutral-300 hover:bg-neutral-800 hover:text-white",
+                    "text-neutral-300 hover:bg-white/10 hover:text-white",
 
                   userButtonPopoverActionButtonText: "text-neutral-300",
 
@@ -116,7 +117,12 @@ export default function DashboardSidebar({ children }) {
       </Sidebar>
 
       {/* ================= PAGE CONTENT ================= */}
-      <main className="flex-1 overflow-y-auto bg-black p-8">{children}</main>
+      <main className="relative flex-1 overflow-y-auto bg-[#050505] p-8 text-[#ececec]">
+        <AmbientBackground />
+        <div className="relative z-10 h-full">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }
