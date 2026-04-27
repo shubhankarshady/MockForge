@@ -33,14 +33,16 @@ export default function InterviewList() {
   };
 
   const onDeleteInterview = async (mockId) => {
+    console.log("Delete button clicked for mockId:", mockId);
     if (window.confirm("Are you sure you want to delete this interview?")) {
       try {
         const result = await deleteMockInterview(mockId);
+        console.log("Delete result:", result);
         if (result.success) {
           toast.success("Interview deleted successfully");
           fetchInterviews(); // Refresh the list
         } else {
-          toast.error("Failed to delete interview");
+          toast.error("Failed to delete interview: " + result.error);
         }
       } catch (error) {
         console.error("Delete error:", error);
@@ -76,8 +78,11 @@ export default function InterviewList() {
                 <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-slate-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 
                 <button 
-                  onClick={() => onDeleteInterview(item.mockId)}
-                  className="absolute right-4 top-4 rounded-full bg-red-50 p-2 text-red-400 opacity-0 transition-all hover:bg-red-100 hover:text-red-600 group-hover:opacity-100 z-10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteInterview(item.mockId);
+                  }}
+                  className="absolute right-4 top-4 rounded-full bg-red-50 p-2 text-red-400 opacity-0 transition-all hover:bg-red-100 hover:text-red-600 group-hover:opacity-100 z-20"
                   title="Delete Interview"
                 >
                   <Trash2 size={16} />
@@ -92,7 +97,7 @@ export default function InterviewList() {
                   {/* Experience */}
                   <div className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-500">
                     <Briefcase size={14} className="text-slate-400" />
-                    <span>{item.jobExperiance} Years Experience</span>
+                    <span>{item.jobExperience} Years Experience</span>
                   </div>
 
                   {/* Description */}

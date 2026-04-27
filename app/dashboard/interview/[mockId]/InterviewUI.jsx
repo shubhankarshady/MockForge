@@ -76,7 +76,7 @@ export default function InterviewUI({ interview }) {
               </div>
               <div className="flex flex-col pt-1">
                 <span className="text-[13px] font-semibold text-slate-500 uppercase tracking-wider">Years of Experience</span>
-                <span className="text-lg font-bold text-slate-800 mt-0.5">{interview.jobExperiance} Years</span>
+                <span className="text-lg font-bold text-slate-800 mt-0.5">{interview.jobExperience} Years</span>
               </div>
             </div>
           </div>

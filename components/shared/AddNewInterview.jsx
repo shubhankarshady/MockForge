@@ -15,7 +15,8 @@ import React, { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
-import { createMockInterview } from "@/lib/actions/interview";
+import { createInterviewWithResume, getLatestResume } from "@/lib/actions/interview-resume";
+import { FileCheck, Upload } from "lucide-react";
 
 function AddNewInterview() {
   const { user } = useUser();
@@ -23,10 +24,26 @@ function AddNewInterview() {
   const [openDialog, setOpenDialog] = useState(false);
   const [jobPosition, setJobPosition] = useState("");
   const [jobDesc, setJobDesc] = useState("");
-  const [jobExperiance, setJobExperiance] = useState("");
+  const [resume, setResume] = useState(null);
+  const [existingResumeUrl, setExistingResumeUrl] = useState(null);
+  const [useExisting, setUseExisting] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+
+  React.useEffect(() => {
+    if (user?.primaryEmailAddress?.emailAddress) {
+      fetchLatestResume();
+    }
+  }, [user]);
+
+  const fetchLatestResume = async () => {
+    const url = await getLatestResume(user.primaryEmailAddress.emailAddress);
+    if (url) {
+      setExistingResumeUrl(url);
+      setUseExisting(true);
+    }
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -35,11 +52,16 @@ function AddNewInterview() {
     const formData = new FormData();
     formData.append("jobPosition", jobPosition);
     formData.append("jobDesc", jobDesc);
-    formData.append("jobExperience", jobExperiance);
     formData.append("createdBy", user?.primaryEmailAddress?.emailAddress);
+    
+    if (useExisting && existingResumeUrl) {
+      formData.append("existingResumeUrl", existingResumeUrl);
+    } else {
+      formData.append("resume", resume);
+    }
 
     try {
-      const result = await createMockInterview(formData);
+      const result = await createInterviewWithResume(formData);
 
       if (result.success) {
         router.push(`/dashboard/interview/${result.mockId}`);
@@ -49,7 +71,7 @@ function AddNewInterview() {
       }
     } catch (err) {
       console.error("Failed to create interview:", err);
-      alert("Failed to generate interview. Check console.");
+      alert("Failed to generate interview: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -86,7 +108,7 @@ function AddNewInterview() {
               </div>
               <DialogDescription className="text-sm text-slate-500 mt-2 leading-relaxed">
                 Add details about your job position, job description and
-                years of experience to generate tailored questions.
+                upload your resume to generate tailored questions using AI.
               </DialogDescription>
             </DialogHeader>
 
@@ -118,16 +140,70 @@ function AddNewInterview() {
 
                 <div className="group/input">
                   <label className="text-sm font-semibold text-slate-700 mb-2 block group-focus-within/input:text-blue-600 transition-colors">
-                    Years of Experience
+                    Resume
                   </label>
-                  <Input
-                    placeholder="Ex. 2"
-                    type="number"
-                    max="50"
-                    required
-                    onChange={(e) => setJobExperiance(e.target.value)}
-                    className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 h-12 rounded-xl transition-all shadow-sm"
-                  />
+                  
+                  {existingResumeUrl ? (
+                    <div className="space-y-3">
+                      <div 
+                        onClick={() => setUseExisting(true)}
+                        className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          useExisting 
+                          ? "border-blue-500 bg-blue-50/50" 
+                          : "border-slate-100 bg-slate-50/30 hover:border-slate-200"
+                        }`}
+                      >
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${useExisting ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500"}`}>
+                          <FileCheck size={20} />
+                        </div>
+                        <div className="flex-1">
+                          <p className={`text-sm font-bold ${useExisting ? "text-blue-700" : "text-slate-700"}`}>Use already uploaded resume</p>
+                          <p className="text-xs text-slate-500 truncate max-w-[300px]">{existingResumeUrl}</p>
+                        </div>
+                        <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${useExisting ? "border-blue-500" : "border-slate-300"}`}>
+                          {useExisting && <div className="h-2.5 w-2.5 rounded-full bg-blue-500" />}
+                        </div>
+                      </div>
+
+                      <div 
+                        onClick={() => setUseExisting(false)}
+                        className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          !useExisting 
+                          ? "border-blue-500 bg-blue-50/50" 
+                          : "border-slate-100 bg-slate-50/30 hover:border-slate-200"
+                        }`}
+                      >
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${!useExisting ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500"}`}>
+                          <Upload size={20} />
+                        </div>
+                        <div className="flex-1">
+                          <p className={`text-sm font-bold ${!useExisting ? "text-blue-700" : "text-slate-700"}`}>Upload a new resume</p>
+                          <p className="text-xs text-slate-500">PDF format preferred</p>
+                        </div>
+                        <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${!useExisting ? "border-blue-500" : "border-slate-300"}`}>
+                          {!useExisting && <div className="h-2.5 w-2.5 rounded-full bg-blue-500" />}
+                        </div>
+                      </div>
+
+                      {!useExisting && (
+                        <Input
+                          type="file"
+                          accept=".pdf"
+                          required={!useExisting}
+                          onChange={(e) => setResume(e.target.files[0])}
+                          className="bg-white border-slate-200 text-slate-800 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 h-12 rounded-xl transition-all shadow-sm pt-2 mt-2"
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <Input
+                      type="file"
+                      accept=".pdf"
+                      required
+                      onChange={(e) => setResume(e.target.files[0])}
+                      className="bg-white border-slate-200 text-slate-800 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 h-12 rounded-xl transition-all shadow-sm pt-2"
+                    />
+                  )}
                 </div>
               </div>
 

@@ -1,7 +1,10 @@
 "use client";
 
-import { Volume1, Volume2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Volume1, Volume2, Mic, MicOff } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import Vapi from "@vapi-ai/web";
+
+const vapi = new Vapi(process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY);
 
 export default function QuestionsSection({
   questions,
@@ -9,16 +12,44 @@ export default function QuestionsSection({
   setActiveIndex,
 }) {
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isVapiActive, setIsVapiActive] = useState(false);
+  const assistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID;
 
-  // ✅ Hooks always run
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
-  }, [activeIndex]);
+    vapi.on("call-start", () => {
+      console.log("Vapi call started");
+      setIsVapiActive(true);
+      setIsSpeaking(true);
+    });
 
-  // THEN conditional rendering
+    vapi.on("call-end", () => {
+      console.log("Vapi call ended");
+      setIsVapiActive(false);
+      setIsSpeaking(false);
+    });
+
+    vapi.on("speech-start", () => setIsSpeaking(true));
+    vapi.on("speech-end", () => setIsSpeaking(false));
+
+    return () => {
+      vapi.stop();
+    };
+  }, []);
+
+  // Automatically read question when activeIndex changes and Vapi is active
+  useEffect(() => {
+    if (isVapiActive && questions && questions[activeIndex]) {
+      const text = questions[activeIndex].question;
+      vapi.send({
+        type: "add-message",
+        message: {
+          role: "assistant",
+          content: text,
+        },
+      });
+    }
+  }, [activeIndex, isVapiActive, questions]);
+
   if (!questions || questions.length === 0) {
     return (
       <div className="rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/40 p-6 md:p-8 flex flex-col relative overflow-hidden">
@@ -30,32 +61,60 @@ export default function QuestionsSection({
 
   const activeQuestion = questions[activeIndex];
 
-  const speakQuestion = (text) => {
-    if (!window.speechSynthesis) return;
+  const toggleVapi = async () => {
+    if (isVapiActive) {
+      vapi.stop();
+    } else {
+      try {
+        await vapi.start(assistantId);
+        // Once started, the useEffect will trigger sending the first question
+      } catch (err) {
+        console.error("Vapi start failed:", err);
+      }
+    }
+  };
 
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+  const readQuestionWithVapi = (text) => {
+    if (!isVapiActive) {
+      toggleVapi();
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1;
-    utterance.pitch = 1;
-
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-    setIsSpeaking(true);
+    vapi.send({
+      type: "add-message",
+      message: {
+        role: "assistant",
+        content: text,
+      },
+    });
   };
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/40 p-6 md:p-8 flex flex-col relative overflow-hidden h-full">
-      <div className="relative z-10 mb-6 border-b border-slate-100 pb-4">
-        <h2 className="text-xl font-bold text-slate-800 tracking-tight">Interview Questions</h2>
-        <p className="text-sm text-slate-500 mt-1">Review the questions and answer thoughtfully.</p>
+      <div className="relative z-10 mb-6 border-b border-slate-100 pb-4 flex justify-between items-center">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800 tracking-tight">Interview Questions</h2>
+          <p className="text-sm text-slate-500 mt-1">Review the questions and answer thoughtfully.</p>
+        </div>
+        
+        <button
+          onClick={toggleVapi}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+            isVapiActive 
+              ? "bg-red-50 text-red-600 border border-red-100" 
+              : "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+          }`}
+        >
+          {isVapiActive ? (
+            <>
+              <MicOff size={16} /> Stop Vapi
+            </>
+          ) : (
+            <>
+              <Mic size={16} /> Start Vapi
+            </>
+          )}
+        </button>
       </div>
 
       {/* Pagination Pills */}
@@ -84,13 +143,13 @@ export default function QuestionsSection({
           </div>
           
           <button
-            onClick={() => speakQuestion(activeQuestion.question)}
+            onClick={() => readQuestionWithVapi(activeQuestion.question)}
             className={`p-2.5 rounded-full transition-all flex-shrink-0 shadow-sm border ${
               isSpeaking 
                  ? "bg-blue-600 border-blue-600 text-white shadow-blue-500/30 scale-105 animate-pulse" 
                  : "bg-white border-blue-100 text-blue-500 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
             }`}
-            title={isSpeaking ? "Stop reading" : "Read question aloud"}
+            title={isSpeaking ? "Speaking..." : "Read question with Vapi"}
           >
             {isSpeaking ? <Volume2 size={20} /> : <Volume1 size={20} />}
           </button>
@@ -104,3 +163,4 @@ export default function QuestionsSection({
     </div>
   );
 }
+

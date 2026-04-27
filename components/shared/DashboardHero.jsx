@@ -69,7 +69,7 @@ export default function DashboardHero() {
       <motion.div 
          initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-         transition={{ duration: 0.9, delay: 0.3, ease: "backOut(1.4)" }}
+         transition={{ duration: 0.9, delay: 0.3, ease: "backOut" }}
          className="relative hidden xl:flex h-36 w-36 items-center justify-center rounded-full bg-gradient-to-tr from-white to-slate-50 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.08)] ring-1 ring-slate-100 z-10 shrink-0"
       >
           {/* Orbit rings */}
@@ -85,4 +85,4 @@ export default function DashboardHero() {
       </motion.div>
     </div>
   );
-}
+}
