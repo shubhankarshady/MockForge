@@ -23,7 +23,6 @@ function AddNewInterview() {
 
   const [openDialog, setOpenDialog] = useState(false);
   const [jobPosition, setJobPosition] = useState("");
-  const [jobDesc, setJobDesc] = useState("");
   const [resume, setResume] = useState(null);
   const [existingResumeUrl, setExistingResumeUrl] = useState(null);
   const [useExisting, setUseExisting] = useState(false);
@@ -46,12 +45,11 @@ function AddNewInterview() {
   };
 
   const onSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setLoading(true);
 
     const formData = new FormData();
     formData.append("jobPosition", jobPosition);
-    formData.append("jobDesc", jobDesc);
     formData.append("createdBy", user?.primaryEmailAddress?.emailAddress);
     
     if (useExisting && existingResumeUrl) {
@@ -61,14 +59,20 @@ function AddNewInterview() {
     }
 
     try {
+      // 1. Get the response from your n8n workflow (handled inside our server action)
+      // Note: We use the existing server action `createInterviewWithResume` because 
+      // Supabase-js is not installed on the client, and Drizzle/Server actions are 
+      // safer for handling the ImageKit upload simultaneously!
       const result = await createInterviewWithResume(formData);
 
       if (result.success) {
+        // Redirect using the mockid (extracted securely on the server)
         router.push(`/dashboard/interview/${result.mockId}`);
         setOpenDialog(false);
       } else {
         throw new Error(result.error);
       }
+
     } catch (err) {
       console.error("Failed to create interview:", err);
       alert("Failed to generate interview: " + err.message);
@@ -123,18 +127,6 @@ function AddNewInterview() {
                     required
                     onChange={(e) => setJobPosition(e.target.value)}
                     className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 h-12 rounded-xl transition-all shadow-sm"
-                  />
-                </div>
-
-                <div className="group/input">
-                  <label className="text-sm font-semibold text-slate-700 mb-2 block group-focus-within/input:text-blue-600 transition-colors">
-                    Job Description / Tech Stack
-                  </label>
-                  <Textarea
-                    placeholder="Ex. React, Node.js etc"
-                    required
-                    onChange={(e) => setJobDesc(e.target.value)}
-                    className="bg-white border-slate-200 text-slate-800 placeholder:text-slate-400 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 min-h-[120px] resize-none rounded-xl transition-all shadow-sm"
                   />
                 </div>
 

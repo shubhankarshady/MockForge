@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { saveUserAnswer } from "@/lib/actions/answer";
 
-export default function SpeechRecorder({ mockId, activeQuestion, user }) {
+export default function SpeechRecorder({ mockId, activeQuestion, user, onStateChange }) {
   const {
     error,
     interimResult,
@@ -35,6 +35,7 @@ export default function SpeechRecorder({ mockId, activeQuestion, user }) {
     transcriptRef.current = "";
     lastInterimRef.current = "";
     startSpeechToText();
+    if (onStateChange) onStateChange(true);
   };
 
   const handleStop = async () => {
@@ -49,6 +50,7 @@ export default function SpeechRecorder({ mockId, activeQuestion, user }) {
 
       if (wordCount < 10) {
         setIsEvaluating(false);
+        if (onStateChange) onStateChange(false);
         toast.error("Answer too short", {
           description: "Speak at least 10 words before stopping the recording.",
         });
@@ -79,6 +81,7 @@ export default function SpeechRecorder({ mockId, activeQuestion, user }) {
         toast.error("Failed to evaluate answer");
       } finally {
         setIsEvaluating(false);
+        if (onStateChange) onStateChange(false);
       }
     }, 300);
   };
