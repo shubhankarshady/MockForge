@@ -9,10 +9,10 @@ MockForge is a comprehensive platform designed to help users prepare for technic
   - **Framework**: Next.js (App Router) with React 19.
   - **AI Integration**: Google Gemini AI (`gemini-2.5-flash`) for generating questions and evaluating answers.
   - **Authentication**: Clerk for secure user management and social login.
-  - **Database**: Supabase (PostgreSQL) with Drizzle ORM using the `postgres-js` driver for reliable connectivity.
-  - **Styling & UI**: Tailwind CSS, Radix UI, and Lucide icons.
+  - **Database**: PostgreSQL (Neon/Supabase) with Drizzle ORM using the `postgres-js` driver.
+  - **Styling & UI**: Tailwind CSS 4, Radix UI, and Lucide icons.
   - **Animations**: GSAP and Framer Motion for a polished, interactive user experience.
-  - **Special Features**: Web camera integration (`react-webcam`) and Speech-to-Text (`react-hook-speech-to-text`).
+  - **Special Features**: Web camera integration (`react-webcam`), Speech-to-Text (`react-hook-speech-to-text`), and Vapi AI for voice interactions.
 
 ## Architecture
 
@@ -25,13 +25,13 @@ MockForge is a comprehensive platform designed to help users prepare for technic
   - `actions/`: Next.js Server Actions for database mutations and AI orchestration.
   - `ai/`: Gemini AI service integration and prompt templates.
   - `db/`: Database configuration and schema definitions (Drizzle).
-- **`proxy.js`**: Likely used for handling local development or specialized routing needs.
+- **`public/`**: Static assets including roadmaps (PDFs) and SVGs.
 
 ## Building and Running
 
 ### Prerequisites
 - Node.js (Latest LTS recommended)
-- A Supabase PostgreSQL database instance
+- A PostgreSQL database instance (Neon or Supabase)
 - Google Gemini API Key
 - Clerk API keys
 

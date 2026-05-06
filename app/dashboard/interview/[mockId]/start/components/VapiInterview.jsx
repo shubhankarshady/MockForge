@@ -106,8 +106,10 @@ export default function VapiInterview({ mockId, questions, jobPosition, user, on
 
     const handleMessage = (message) => {
       if (message.type === 'transcript' && message.transcriptType === 'final') {
-         transcriptRef.current.push(`${message.role === 'user' ? 'Candidate' : 'AI'}: ${message.transcript}`);
-         console.log("Added to transcript:", message.transcript);
+         if (message.role === 'user') {
+           transcriptRef.current.push(message.transcript);
+           console.log("Added user speech to transcript:", message.transcript);
+         }
       }
     };
 
