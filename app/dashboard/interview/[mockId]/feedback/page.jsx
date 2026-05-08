@@ -41,15 +41,27 @@ export default async function Feedback({ params }) {
         summary: "This is a dynamically generated summary based on your previous answers.",
         strengths: ["Completed Assessment"],
         weaknesses: ["Needs targeted AI feedback generation"],
-        qa_breakdown: answers.map(item => ({
-          question: item.questions || item.question,
-          userans: item.userAns,
-          correctans: item.correctAns,
-          feedback: item.feedback,
-          rating: Number(item.rating),
-          sentiment: Number(item.rating) >= 7 ? "Confident" : "Needs Practice",
-          technical_keywords: []
-        }))
+        qa_breakdown: answers.map(item => {
+          let parsedQ = { question: item.questions };
+          let parsedC = { answer: item.correctness };
+          let parsedU = { userAns: item.userAns };
+          let parsedF = { feedback: item.feedback, rating: item.rating };
+
+          try { parsedQ = JSON.parse(item.questions); } catch(e) {}
+          try { parsedC = JSON.parse(item.correctness); } catch(e) {}
+          try { parsedU = JSON.parse(item.userAns); } catch(e) {}
+          try { parsedF = JSON.parse(item.feedback); } catch(e) {}
+
+          return {
+            question: parsedQ.question || item.questions,
+            userans: parsedU.userAns || item.userAns,
+            correctans: parsedC.answer || item.correctness,
+            feedback: parsedF.feedback || item.feedback,
+            rating: Number(parsedF.rating || item.rating),
+            sentiment: Number(parsedF.rating || item.rating) >= 7 ? "Confident" : "Needs Practice",
+            technical_keywords: []
+          };
+        })
       };
     }
   }

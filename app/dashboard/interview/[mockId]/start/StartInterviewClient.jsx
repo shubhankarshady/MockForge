@@ -5,13 +5,16 @@ import { useRouter } from "next/navigation";
 import QuestionsSection from "./components/QuestionSection";
 import RecordAnsSection from "./components/RecordAnsSection";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, LoaderCircle } from "lucide-react";
+import { submitInterview } from "@/lib/actions/interview";
+import { toast } from "sonner";
 
 export default function StartInterviewClient({ interview, user }) {
   const [mockInterviewQuestions, setMockInterviewQuestions] = useState([]);
   const [interviewData, setInterviewData] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isBusy, setIsBusy] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
 
@@ -125,12 +128,27 @@ export default function StartInterviewClient({ interview, user }) {
   const activeQuestion = mockInterviewQuestions[activeIndex];
   const isLastQuestion = activeIndex === mockInterviewQuestions.length - 1;
 
-  const handleFinishInterview = () => {
+  const handleFinishInterview = async () => {
     if (isBusy) {
       alert("Please end the current recording or AI voice call before finishing the interview.");
       return;
     }
-    router.push(`/dashboard/interview/${interviewData?.mockId}/feedback`);
+
+    setIsSubmitting(true);
+    try {
+      const result = await submitInterview(interviewData?.mockId);
+      if (result.success) {
+        toast.success("Interview submitted successfully!");
+        router.push(`/dashboard/interview/${interviewData?.mockId}/feedback`);
+      } else {
+        toast.error("Submission failed", { description: result.error });
+      }
+    } catch (err) {
+      console.error("Submission error:", err);
+      toast.error("Failed to submit interview");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -203,10 +221,20 @@ export default function StartInterviewClient({ interview, user }) {
             {isLastQuestion && (
               <Button
                 onClick={handleFinishInterview}
+                disabled={isSubmitting}
                 className="bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-500/20 rounded-xl px-6 transition-all group"
               >
-                Finish Interview
-                <CheckCircle className="w-4 h-4 ml-2 transition-transform group-hover:scale-110" />
+                {isSubmitting ? (
+                  <>
+                    Submitting...
+                    <LoaderCircle className="w-4 h-4 ml-2 animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    Finish Interview
+                    <CheckCircle className="w-4 h-4 ml-2 transition-transform group-hover:scale-110" />
+                  </>
+                )}
               </Button>
             )}
           </div>

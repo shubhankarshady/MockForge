@@ -7,7 +7,7 @@ MockForge is a comprehensive platform designed to help users prepare for technic
 - **Core Purpose**: AI-powered mock interview generation, speech-to-text answer recording, and automated evaluation/feedback.
 - **Main Technologies**:
   - **Framework**: Next.js (App Router) with React 19.
-  - **AI Integration**: Google Gemini AI (`gemini-2.5-flash`) for generating questions and evaluating answers.
+  - **AI Integration**: Groq AI (`llama-3.3-70b-versatile`) for generating questions and evaluating answers.
   - **Authentication**: Clerk for secure user management and social login.
   - **Database**: PostgreSQL (Neon/Supabase) with Drizzle ORM using the `postgres-js` driver.
   - **Styling & UI**: Tailwind CSS 4, Radix UI, and Lucide icons.
@@ -23,7 +23,7 @@ MockForge is a comprehensive platform designed to help users prepare for technic
   - `animations/`: Specialized animation components (GSAP magnetic effects, splash cursors).
 - **`lib/`**:
   - `actions/`: Next.js Server Actions for database mutations and AI orchestration.
-  - `ai/`: Gemini AI service integration and prompt templates.
+  - `ai/`: Groq AI service integration and prompt templates.
   - `db/`: Database configuration and schema definitions (Drizzle).
 - **`public/`**: Static assets including roadmaps (PDFs) and SVGs.
 
@@ -32,7 +32,7 @@ MockForge is a comprehensive platform designed to help users prepare for technic
 ### Prerequisites
 - Node.js (Latest LTS recommended)
 - A PostgreSQL database instance (Neon or Supabase)
-- Google Gemini API Key
+- Groq API Key
 - Clerk API keys
 
 ### Environment Setup
@@ -44,7 +44,7 @@ NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 
 DATABASE_URL=
-GEMINI_API_KEY=
+GROQ_API_KEY=
 ```
 
 ### Key Commands
@@ -56,7 +56,7 @@ GEMINI_API_KEY=
 
 ## Development Conventions
 
-- **Server Actions**: All database mutations and external API calls (like Gemini) should be handled via Server Actions in `lib/actions/`.
+- **Server Actions**: All database mutations and external API calls (like Groq) should be handled via Server Actions in `lib/actions/`.
 - **Database Schemas**: Define all tables in `lib/db/schema/` and export them through `lib/db/schema/index.js`.
 - **Components**: Prefer functional components and use the `shared/` directory for components that contain business logic.
 - **AI Prompts**: Keep prompts centralized in `lib/ai/prompts.js` for easier versioning and tuning.

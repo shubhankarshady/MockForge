@@ -5,7 +5,7 @@ import Vapi from "@vapi-ai/web";
 import { Button } from "@/components/ui/button";
 import { Mic, PhoneOff, LoaderCircle, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { saveUserAnswer } from "@/lib/actions/answer";
+import { processVapiTranscript } from "@/lib/actions/answer";
 
 // File-scoped instance
 const vapi = typeof window !== "undefined" ? new Vapi(process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || "") : null;
@@ -39,28 +39,20 @@ export default function VapiInterview({ mockId, questions, jobPosition, user, on
       toast.info("Interview finished, evaluating your responses...");
       
       const { mockId, questions, user } = propsRef.current;
-      const fullTranscript = transcriptRef.current.join("\n");
+      const fullTranscript = transcriptRef.current.map(t => `${t.role.toUpperCase()}: ${t.text}`).join("\n");
       
       if (fullTranscript.length > 50) {
         try {
-          const formattedQs = Array.isArray(questions) 
-            ? questions.map((q, i) => {
-                const qText = typeof q === 'string' ? q : (q.question || "");
-                return `Q${i + 1}: ${qText}`;
-              }).join("\n")
-            : "Interview conversation";
-            
-          const result = await saveUserAnswer({
+          const result = await processVapiTranscript({
             mockId: mockId,
-            question: formattedQs,
-            correctAns: "Comprehensive conversational answer covering all points expected.",
-            userAns: fullTranscript,
+            questions: questions,
+            transcript: fullTranscript,
             userEmail: user?.primaryEmailAddress?.emailAddress || "anonymous"
           });
           
           if (result.success) {
             toast.success("Interview evaluated successfully", {
-              description: "Your answers and feedback have been saved."
+              description: `Analyzed and saved ${result.count} responses.`
             });
           } else {
             toast.error("Evaluation failed", { description: result.error });
@@ -106,10 +98,11 @@ export default function VapiInterview({ mockId, questions, jobPosition, user, on
 
     const handleMessage = (message) => {
       if (message.type === 'transcript' && message.transcriptType === 'final') {
-         if (message.role === 'user') {
-           transcriptRef.current.push(message.transcript);
-           console.log("Added user speech to transcript:", message.transcript);
-         }
+         transcriptRef.current.push({
+           role: message.role,
+           text: message.transcript
+         });
+         console.log(`Added ${message.role} speech to transcript:`, message.transcript);
       }
     };
 
@@ -170,9 +163,10 @@ ${formattedQuestions}
 
 2. Ask exactly ONE question at a time.
 3. Wait for the candidate's response before moving to the next question.
-4. Do not invent your own technical questions.
-5. Keep your tone professional and encouraging.
-6. When all questions are finished, thank the candidate and end the call.`
+4. After the candidate finishes answering a question, say exactly: "Thank you for your response, let's move to the next question."
+5. Do not invent your own technical questions.
+6. Keep your tone professional and encouraging.
+7. When all questions are finished, thank the candidate and end the call.`
       }
     };
 
