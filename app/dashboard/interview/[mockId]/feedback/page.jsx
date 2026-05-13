@@ -42,15 +42,20 @@ export default async function Feedback({ params }) {
         strengths: ["Completed Assessment"],
         weaknesses: ["Needs targeted AI feedback generation"],
         qa_breakdown: answers.map(item => {
-          let parsedQ = { question: item.questions };
-          let parsedC = { answer: item.correctness };
-          let parsedU = { userAns: item.userAns };
-          let parsedF = { feedback: item.feedback, rating: item.rating };
+          const safeParse = (str, fallback) => {
+            if (!str) return fallback;
+            try {
+              const parsed = JSON.parse(str);
+              return (parsed && typeof parsed === 'object') ? parsed : fallback;
+            } catch (e) {
+              return fallback;
+            }
+          };
 
-          try { parsedQ = JSON.parse(item.questions); } catch(e) {}
-          try { parsedC = JSON.parse(item.correctness); } catch(e) {}
-          try { parsedU = JSON.parse(item.userAns); } catch(e) {}
-          try { parsedF = JSON.parse(item.feedback); } catch(e) {}
+          let parsedQ = safeParse(item.questions, { question: item.questions });
+          let parsedC = safeParse(item.correctness, { answer: item.correctness });
+          let parsedU = safeParse(item.userAns, { userAns: item.userAns });
+          let parsedF = safeParse(item.feedback, { feedback: item.feedback, rating: item.rating });
 
           return {
             question: parsedQ.question || item.questions,

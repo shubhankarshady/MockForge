@@ -71,7 +71,7 @@ export default function InterviewList() {
           {interviewList.length > 0 ? (
             interviewList.map((item) => (
               <div
-                key={item.mockId}
+                key={item.id}
                 className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-white border border-slate-200 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/5 hover:border-blue-200"
               >
                 {/* Background Decor */}
